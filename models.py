@@ -16,6 +16,14 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
+    # add drop_all for testing
+    db.drop_all()
+    db.create_all()
+
+
+
+def db_drop_and_create_all():
+    db.drop_all()
     db.create_all()
 
 
@@ -26,9 +34,9 @@ Have title and release year
 class Person(db.Model):  
   __tablename__ = 'People'
 
-  id = Column(Integer, primary_key=True)
-  name = Column(String)
-  catchphrase = Column(String)
+  id = Column(db.Integer, primary_key=True)
+  name = Column(db.String)
+  catchphrase = Column(db.String)
 
   def __init__(self, name, catchphrase=""):
     self.name = name
