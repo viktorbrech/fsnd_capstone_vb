@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, render_template
 from sqlalchemy import exc
 import json
 from flask_cors import CORS
@@ -19,6 +19,10 @@ def create_app(test_config=None):
         greeting = "Hello" 
         if excited == 'true': greeting = greeting + "!!!!!"
         return greeting
+
+    @app.route('/login')
+    def login_page():
+        return render_template("mini_frontend/login.html")
 
     @app.route('/coolkids')
     def be_cool():
