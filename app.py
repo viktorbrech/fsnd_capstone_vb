@@ -28,14 +28,12 @@ def create_app(test_config=None):
 
     @app.route('/callback')
     def callback_page():
-        # conn = http.client.HTTPSConnection("")
-        # payload = "grant_type=authorization_code&client_id=%24%7Baccount.clientId%7D&client_secret=YOUR_CLIENT_SECRET&code=YOUR_AUTHORIZATION_CODE&redirect_uri=%24%7Baccount.callback%7D"
-        # headers = { 'content-type': "application/x-www-form-urlencoded" }
-        # conn.request("POST", "/vbrech.eu.auth0.com/oauth/token", payload, headers)
-        # res = conn.getresponse()
-        # data = res.read()
-        # print(data.decode("utf-8"))
-        return render_template("callback.html")
+        args = request.args
+        if "access_token" in args:
+            jwt = args["access_token"]
+        else:
+            jwt = "[no access_token]"
+        return render_template("callback.html", jwt=jwt)
 
     @app.route('/coolkids')
     def be_cool():
