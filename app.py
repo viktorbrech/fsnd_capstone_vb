@@ -28,12 +28,7 @@ def create_app(test_config=None):
 
     @app.route('/callback')
     def callback_page():
-        args = request.args
-        if "access_token" in args:
-            jwt = args["access_token"]
-        else:
-            jwt = "[no access_token]"
-        return render_template("callback.html", jwt=jwt)
+        return render_template("callback.html")
 
     @app.route('/coolkids')
     def be_cool():
