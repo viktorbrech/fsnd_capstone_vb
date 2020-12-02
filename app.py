@@ -1,8 +1,10 @@
 import os
-from flask import Flask
-from models import setup_db
+from flask import Flask, request, jsonify, abort
+from sqlalchemy import exc
+import json
 from flask_cors import CORS
 
+from models import setup_db, Actor, Movie
 from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
