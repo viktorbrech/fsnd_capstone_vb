@@ -10,7 +10,7 @@ THIS ENTIRE FILE MOSTLY RECYCLED FROM THE COFFEE_SHOP CLASS PROJECT
 
 AUTH0_DOMAIN = 'vbrech.eu.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'agency_api'
+API_AUDIENCE = 'capstone_api'
 
 # AuthError Exception
 

@@ -22,7 +22,11 @@ def create_app(test_config=None):
 
     @app.route('/login')
     def login_page():
-        return render_template("mini_frontend/login.html")
+        return render_template("login.html")
+
+    @app.route('/callback')
+    def login_page():
+        return render_template("callback.html")
 
     @app.route('/coolkids')
     def be_cool():
