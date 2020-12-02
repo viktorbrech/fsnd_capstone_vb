@@ -33,7 +33,7 @@ def create_app(test_config=None):
         return jsonify({"success": True, "actors": actors})
 
     # GET /movies
-    @app.route('/movie')
+    @app.route('/movies')
     @requires_auth(permission="get:movies")
     def get_movies(payload):
         all_movies = Movie.query.all()
