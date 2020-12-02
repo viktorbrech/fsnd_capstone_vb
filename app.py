@@ -25,7 +25,7 @@ def create_app(test_config=None):
     # GET /actors
     @app.route('/actors')
     # @requires_auth(permission="get:actors")
-    def get_actors(payload):
+    def get_actors():
         all_actors = Actor.query.all()
         actors = []
         for actor in all_actors:
