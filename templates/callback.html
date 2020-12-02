@@ -11,11 +11,18 @@
 <body>
   <h1 style="color: blue">Here is your JWT:</h1>
   <p id="jwt">[no access_token available]</p>
-
   <script>
-      var access_token = new URLSearchParams(window.location.hash).get('access_token');
-      document.getElementById("jwt").innerHTML = access_token;
+    var hash_params = window.location.hash.split("&")
+    for (x of hash_params) {
+        var param_pair = x.split("=")
+        console.log(param_pair[0])
+        if (param_pair[0]=="access_token" || param_pair[0]=="#access_token") {
+            document.getElementById("jwt").innerHTML = param_pair[1];
+        }
+    }
   </script>
 </body>
 
 </html>
+
+
