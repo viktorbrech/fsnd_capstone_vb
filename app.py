@@ -57,18 +57,26 @@ def create_app(test_config=None):
         return jsonify({"success": True, "movies": movies})
 
     # DELETE /actors/id
-
-    # @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
-    # @requires_auth(permission="delete:drinks")
-    # def delete_drinks(payload, drink_id):
-    #     drink = Drink.query.get(drink_id)
-    #     if drink:
-    #         drink.delete()
-    #     else:
-    #         abort(404)
-    #     return jsonify({'success': True, 'delete': drink_id})
+    @app.route('/actors/<int:actor_id>', methods=['DELETE'])
+    @requires_auth(permission="delete:actors")
+    def delete_actors(payload, actor_id):
+        actor = Actor.query.get(actor_id)
+        if actor:
+            actor.delete()
+        else:
+            abort(404)
+        return jsonify({'success': True, 'delete': actor_id})
 
     # DELETE /movies/id
+    @app.route('/movies/<int:movie_id>', methods=['DELETE'])
+    @requires_auth(permission="delete:movies")
+    def delete_movies(payload, movie_id):
+        movie = Movie.query.get(movie_id)
+        if movie:
+            movie.delete()
+        else:
+            abort(404)
+        return jsonify({'success': True, 'delete': movie_id})
 
     # POST /actors
     @app.route('/actors', methods=['POST'])
