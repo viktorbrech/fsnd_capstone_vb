@@ -7,8 +7,6 @@ from flask_cors import CORS
 from models import setup_db, Actor, Movie
 from auth import AuthError, requires_auth
 
-import http.client
-
 def create_app(test_config=None):
 
     app = Flask(__name__)
@@ -51,7 +49,7 @@ def create_app(test_config=None):
         return jsonify({"success": True, "movies": movies})
 
     # DELETE /actors/id
-    
+
     # @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
     # @requires_auth(permission="delete:drinks")
     # def delete_drinks(payload, drink_id):
@@ -85,7 +83,7 @@ def create_app(test_config=None):
         # TODO ensure proper type conversions inside the following constructor
         new_movie = Movie(
             title=data["title"],
-            release_date=data["release_date"],
+            release_date=data["release_date"])
         new_movie.insert()
         return jsonify({'success': True, 'movies': [new_movie.format()]})
 
