@@ -11,6 +11,7 @@ from flask import (
 from sqlalchemy import exc
 import json
 from flask_cors import CORS
+from datetime import date
 
 from models import setup_db, Actor, Movie
 from auth import AuthError, requires_auth
@@ -21,9 +22,9 @@ def create_app(test_config=None):
     setup_db(app)
     CORS(app)
 
-    # mini-frontend "Home", redirects to login page
+    # mini-frontend "Home" page, redirects to login page
     @app.route('/')
-    def get_greeting():
+    def home_page():
         return redirect(url_for('login_page'))
 
     # mini-frontend "Login" page
@@ -39,7 +40,7 @@ def create_app(test_config=None):
     # GET /actors
     @app.route('/actors')
     @requires_auth(permission="get:actors")
-    def get_actors():
+    def get_actors(payload):
         all_actors = Actor.query.all()
         actors = []
         for actor in all_actors:
@@ -83,7 +84,7 @@ def create_app(test_config=None):
     @requires_auth(permission="post:actors")
     def post_actors(payload):
         data = request.get_json()
-        # TODO ensure proper type conversions inside the following constructor
+        print("lol")
         new_actor = Actor(
             name=data["name"],
             age=data["age"],
@@ -96,31 +97,52 @@ def create_app(test_config=None):
     @requires_auth(permission="post:movies")
     def post_movies(payload):
         data = request.get_json()
-        # TODO ensure proper type conversions inside the following constructor
+        try:
+            assert "title" in data
+            release_date = date.fromisoformat(data["release_date"])
+        except:
+            abort(422)
         new_movie = Movie(
             title=data["title"],
-            release_date=data["release_date"])
+            release_date=release_date)
         new_movie.insert()
         return jsonify({'success': True, 'movies': [new_movie.format()]})
 
     # PATCH /actors/id
-
-    # @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
-    # @requires_auth(permission="patch:drinks")
-    # def patch_drinks(payload, drink_id):
-    #     data = request.get_json()
-    #     drink = Drink.query.get(drink_id)
-    #     if "title" in data:
-    #         drink.title = data["title"]
-    #     if "recipe" in data:
-    #         if isinstance(data["recipe"], list):
-    #             drink.recipe = json.dumps(data["recipe"])
-    #         else:
-    #             drink.recipe = json.dumps([data["recipe"]])
-    #     drink.update()
-    #     return jsonify({'success': True, 'drinks': [drink.long()]})
+    @app.route('/actors/<int:actor_id>', methods=['PATCH'])
+    @requires_auth(permission="patch:actors")
+    def patch_actors(payload, actor_id):
+        data = request.get_json()
+        actor = Actor.query.get(actor_id)
+        if not actor:
+            abort(404)
+        if "name" in data:
+            actor.name = data["name"]
+        if "age" in data:
+            actor.age = data["age"]
+        if "gender" in data:
+            actor.gender = data["gender"]
+        actor.update()
+        return jsonify({'success': True, 'actors': [actor.format()]})
     
     # PATCH /movies/id
+    @app.route('/movies/<int:movie_id>', methods=['PATCH'])
+    @requires_auth(permission="patch:movies")
+    def patch_movies(payload, movie_id):
+        data = request.get_json()
+        movie = Movie.query.get(movie_id)
+        if not movie:
+            abort(404)
+        if "title" in data:
+            movie.title = data["title"]
+        if "release_date" in data:
+            try:
+                release_date = date.fromisoformat(data["release_date"])
+            except:
+                abort(422)
+            movie.release_date = release_date
+        movie.update()
+        return jsonify({'success': True, 'movies': [movie.format()]})
 
     """
     ERROR HANDLERS TAKEN FROM MY COFFEE_SHOP PROJECT SUBMISSION

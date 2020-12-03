@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 import os
 import enum
+from datetime import date
 
 database_path = os.environ['DATABASE_URL']
 
@@ -46,7 +47,7 @@ class Actor(db.Model):
             'id': self.id,
             'name': self.name,
             'age': self.age,
-            'gender': self.gender
+            'gender': self.gender.name
         }
 
     '''
@@ -98,7 +99,7 @@ class Movie(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'release_date': self.release_date
+            'release_date': self.release_date.isoformat()
         }
 
     '''
