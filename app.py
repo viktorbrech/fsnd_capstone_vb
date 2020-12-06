@@ -12,9 +12,14 @@ from sqlalchemy import exc
 import json
 from flask_cors import CORS
 from datetime import date
+import time
 
-from models import setup_db, Actor, Movie
+from models import setup_db, Actor, Movie, db_drop_and_create_all
 from auth import AuthError, requires_auth
+
+# uncomment the following line to reset the database upon flask run
+# db_drop_and_create_all()
+
 
 def create_app(test_config=None):
 
@@ -84,7 +89,6 @@ def create_app(test_config=None):
     @requires_auth(permission="post:actors")
     def post_actors(payload):
         data = request.get_json()
-        print("lol")
         new_actor = Actor(
             name=data["name"],
             age=data["age"],
