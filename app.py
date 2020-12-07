@@ -89,6 +89,11 @@ def create_app(test_config=None):
     @requires_auth(permission="post:actors")
     def post_actors(payload):
         data = request.get_json()
+        if "name" not in data:
+            abort (422)
+        check_actor = Actor.query.filter(Actor.name == data["name"]).one_or_none()
+        if check_actor:
+            abort(422)
         new_actor = Actor(
             name=data["name"],
             age=data["age"],
@@ -101,7 +106,9 @@ def create_app(test_config=None):
     @requires_auth(permission="post:movies")
     def post_movies(payload):
         data = request.get_json()
+        check_movie = Movie.query.filter(Movie.title == data["title"]).one_or_none()
         try:
+            assert not check_movie
             assert "title" in data
             release_date = date.fromisoformat(data["release_date"])
         except:
