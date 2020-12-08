@@ -7,19 +7,15 @@ from app import create_app
 from models import setup_db, Actor, Movie, db_drop_and_create_all
 from auth import AuthError, requires_auth
 
-# reset the database
-db_drop_and_create_all()
-print("db reset")
-
 
 # ---------------------------------------------------------------------------#
 # JWTs for every role.
 # ---------------------------------------------------------------------------#
 
-EXECUTIVE_PRODUCER_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTcyNDg3MjI1OTI2MjExNDg0NzkiLCJhdWQiOlsiY2Fwc3RvbmVfYXBpIiwiaHR0cHM6Ly92YnJlY2guZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTYwNzM3NjM1NywiZXhwIjoxNjA3NDYyNzU3LCJhenAiOiJNWkYwQlY3NjY2UE1JN2NzZHF0eG9BN3Z1THJxUDYwRiIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJwZXJtaXNzaW9ucyI6WyJkZWxldGU6YWN0b3JzIiwiZGVsZXRlOm1vdmllcyIsImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIiwicGF0Y2g6YWN0b3JzIiwicGF0Y2g6bW92aWVzIiwicG9zdDphY3RvcnMiLCJwb3N0Om1vdmllcyJdfQ.H_Q6oidHmEz7uQkJ2c41BSIiuYRvIRi0hUEdcfYmgNUxS43IW_WrY9qxun1JJD3blMG8zPzkTiOUCCqfuexvCYoyV_fBj73FsMeSSJg8u4frb30PcNNH-2MJAm3DPEK96kUTu6-Sx3rD0PmliBFfL4McCS83EW-AGNKnWfb6tjPApgM7op34l2vGC-H_ybUO26pWX8-BaVLfyFtRJVQHXjc4nDGlaA6LmAUCC87UlxZQvo0ewYi8E3_DK93zxaZaxISAfxyKOlEa9m-UUF6JRGl_3w1MfYVtN1_Y3wNp3oIzRVhv_swhmBh48sLeZdaohzHL0Gh--UsLvW0q8_laMQ"
-CASTING_ASSISTANT_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTAyODk3MTA3MTk1MjkyNzczNjgiLCJhdWQiOlsiY2Fwc3RvbmVfYXBpIiwiaHR0cHM6Ly92YnJlY2guZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTYwNzM4MTI3MiwiZXhwIjoxNjA3NDY3NjcyLCJhenAiOiJNWkYwQlY3NjY2UE1JN2NzZHF0eG9BN3Z1THJxUDYwRiIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJwZXJtaXNzaW9ucyI6WyJnZXQ6YWN0b3JzIiwiZ2V0Om1vdmllcyJdfQ.YdmaaCgrAVcejEwrJOOQ0XTOcN0-qS2VZCCuXu8VtV-PvupDWm45ke57xmFuJpOXkWhQQj4ftw8RWOMdDQLNqUZbJLfiWpfeGdqEQ_vsiGWwnNgAwmgJ_SupCEsx57dhGaWGq2vefDY0j2MYQ0HnZn1majjfFekHF0Gbkuf_HdQqekFIJP7KPlnUBgRUEZcnnpU5soUd_yn3C0sGJucTWhB_RCh7Jk5RP9vAyYrU096iXa3rI_ufzphvT3ZXAI1SA18U37UAwwsW5eBpCEcq2SOGsIa-Nav_hBV3w911KREBlczOAoh8SJh0UGpV_MNk1CqUjH0lwzvJd2xKgSYXLA"
-CASTING_DIRECTOR_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMDIzNjc5NTQwNjU4ODIxMDIyMzQiLCJhdWQiOlsiY2Fwc3RvbmVfYXBpIiwiaHR0cHM6Ly92YnJlY2guZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTYwNzM4MTM5MiwiZXhwIjoxNjA3NDY3NzkyLCJhenAiOiJNWkYwQlY3NjY2UE1JN2NzZHF0eG9BN3Z1THJxUDYwRiIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJwZXJtaXNzaW9ucyI6WyJkZWxldGU6YWN0b3JzIiwiZ2V0OmFjdG9ycyIsImdldDptb3ZpZXMiLCJwYXRjaDphY3RvcnMiLCJwYXRjaDptb3ZpZXMiLCJwb3N0OmFjdG9ycyJdfQ.E8-ptWDosKcdhdDGh6K3qMYSkG7nQCuOkAdYyb0Njbm_JoGCMB0CRbLa6RlVfgTutF7TgKs1NvXiA7Qz4qauYSH1eXywiucGilonuk4OuL3JxKFnGiWyO4Vl3dIUwL-Cz4dQY3VQa63jJvDwa6x_sNkidyO5DJHniS1fnyp56svWEL7Lpa6mnj3IWnny_HDhJr3tnSZqRSlmzGmd_TH_ZNMfKIL1avBeDZ9DXwompa3y9u2fcCfj_9W7HXF65FBdV-uQ28Xx6hONo2ggoktMBmnO1UUrdvjoWZ2UfB8IO9SaTbmMGs9isNFaELefI8LHrbg_PLWjGiagtlCKhgKawQ"
-NO_ROLE_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMDIzNjc5NTQwNjU4ODIxMDIyMzQiLCJhdWQiOlsiY2Fwc3RvbmVfYXBpIiwiaHR0cHM6Ly92YnJlY2guZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTYwNzM3Njg5MywiZXhwIjoxNjA3NDYzMjkzLCJhenAiOiJNWkYwQlY3NjY2UE1JN2NzZHF0eG9BN3Z1THJxUDYwRiIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJwZXJtaXNzaW9ucyI6W119.6QHhesapZe6BwMXzl-H-uQPGUTKqoyQq18gwm3_cJ4tdtVf-HKc7vzw-WtLSzkqGO2KfYabF-qeeXwgUuBdMWjMhUpfI9sGY6OkHDsYQZVcMS1SN56xWaKeM-OiqLTgyOTyyxTA7LwWjwWJpWhdhR_pnq4RribgBX8R2eOpjC_gKFtx-xxDqDXvF0_jqxS3I1NM8vuzTIuz0Zf_KDF0Wxjl3-efrlIw95nz2Bb2PkkNRowWizgvat_rr8Rl9UcNxv07ilcfaQbWmtPwDB6t-XToX_aACxTg5hmXS3rBRER9l7k5bDI0IUkYEqeMj5pusD-WgXOY3bok_lZhWYuosbw"
+EXECUTIVE_PRODUCER_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWZjZmQxNDE5YWJkNzAwMDZlNDE5ZWY3IiwiYXVkIjoiY2Fwc3RvbmVfYXBpIiwiaWF0IjoxNjA3NDYwMjkyLCJleHAiOjE2MDc1NDY2OTIsImF6cCI6Ik1aRjBCVjc2NjZQTUk3Y3NkcXR4b0E3dnVMcnFQNjBGIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6WyJkZWxldGU6YWN0b3JzIiwiZGVsZXRlOm1vdmllcyIsImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIiwicGF0Y2g6YWN0b3JzIiwicGF0Y2g6bW92aWVzIiwicG9zdDphY3RvcnMiLCJwb3N0Om1vdmllcyJdfQ.yDYLdsckNW2EwK4_jse6Y1ZLbUviX_lCmbfBYvdDw4yD4c6rkGvb-r-EcCfR55KzM46qETHho8hsZY8sLpV_gikkyz20hVntBUMRc_bZycTf0q8E-MRVM8-dsplXyTa-9yutwlYaAmVxCAoI4OyoyEOhBTCthKVzd2xp55OPM5sMJlIXGZSwABEvfrSJ-m0wxfRTIMUfHaDxqtwYe8l2zDCRTLD_vZeSSG7COy1MAE7MjdXIynTyCRFqZRz0jcD9FS-YXaQZ8Gqj3u8XiJWjgBtOz7X7pc1FyW65u-T2PD2ZeTK1l_WdyPBJGLTWVJSHkwg50FsbenGW2W5tOp9XOg"
+CASTING_ASSISTANT_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWZjZmQwOTM1ZWRmMjgwMDY4NDVmOWYwIiwiYXVkIjoiY2Fwc3RvbmVfYXBpIiwiaWF0IjoxNjA3NDYwMTk2LCJleHAiOjE2MDc1NDY1OTYsImF6cCI6Ik1aRjBCVjc2NjZQTUk3Y3NkcXR4b0E3dnVMcnFQNjBGIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6WyJnZXQ6YWN0b3JzIiwiZ2V0Om1vdmllcyJdfQ.dqaq9wewAk_I-yMB-k8XbFv8ixCd-khXs_fvNERLwMT9e2GtXrfZZ-OZsqSRR_XSl0iO5THVo464hvqiBqiTMkFwTN82UHjwtnj1FoHV9rM-oFXXIdwJKjZZGk21K9HTou-ah5ne7gqwCP0y-q-GGdwqe3MVdh1iuFofbBa_9TpksgChYaYayXTzFOv_6imnnuj247V95mwlF1c0gLu5sfo7oKkP3cHP2nMSKhbfbk2a1e-xf6DREsf4wM-cTiO9n4R24WvUDDuqbSOtt2O9dm31rsZIgoveMuSBaI-X75FoRH08YaxiKgi9PLhE0xMNtQmaDA07AtWLXdHQ5X_I1g"
+CASTING_DIRECTOR_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWZjZmQxMDBjN2YxMzYwMDc5ZmQwODk2IiwiYXVkIjoiY2Fwc3RvbmVfYXBpIiwiaWF0IjoxNjA3NDYwMjU1LCJleHAiOjE2MDc1NDY2NTUsImF6cCI6Ik1aRjBCVjc2NjZQTUk3Y3NkcXR4b0E3dnVMcnFQNjBGIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6WyJkZWxldGU6YWN0b3JzIiwiZ2V0OmFjdG9ycyIsImdldDptb3ZpZXMiLCJwYXRjaDphY3RvcnMiLCJwYXRjaDptb3ZpZXMiLCJwb3N0OmFjdG9ycyJdfQ.MH0nqNEPiCJnG-3YISe6qo6RDX_kOsH1IA-z06WthasynnM5ppSKk3ZGm9gFyB6jNqsSZFlfTxEygsMPKfXJrUw3Hyu9WKJEKTgFnR2IDOH7PeXVaH3_NcXM6SblxYK9YZsHH-jBT0kP_jheambA_NhnYb0KIqdOaILG2s4BNbu1uC1TOWEKMIwBWNYFtAY7PQtKDjrYQFnfXLeT8YZ2q29ZD_cVxfoBdPaaonQl6rp_tJR1BIaeUuScUjfZI_U0cCpJ0Sztzer9p3ZjfVmUbVK8wSxFvkXvkh94xSiRnDdnBoOjEdMRo99a4E1_WEYPDa-hc-P1u4a4ffcKOzR-uQ"
+NO_ROLE_JWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVhVUZmWnhBaWpfUk9TR1M2Q05PYiJ9.eyJpc3MiOiJodHRwczovL3ZicmVjaC5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWZjZmU0YTA5YWJkNzAwMDZlNDFhM2JkIiwiYXVkIjoiY2Fwc3RvbmVfYXBpIiwiaWF0IjoxNjA3NDYwMTUwLCJleHAiOjE2MDc1NDY1NTAsImF6cCI6Ik1aRjBCVjc2NjZQTUk3Y3NkcXR4b0E3dnVMcnFQNjBGIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6W119.6tjtzNrUDm26VLH9TQj4ltUSsrZ_r_j8QLAdycXgO2SNfuy9w-fzPpy_gzGH-YSWrTdp4Y2AJGK3aB_9IU2Xh_Q9y-wpvH2KhvL3yi4NnH5g6J9rT1z17Eb8w6MfhQfm3_m82nc4xGjebDLcurSkZaxv9cQkfcrNDFqqUK_bilVujcV1-0twKBIUVC-eYOfiM91ELyIqQuqqBymPQvKpBoRlHMOUX3YviOP31nuWVY66bsUvzc-An6l2zL1m1qPKEvgQVDsTCvJQt873_FlrrkBZ3i6rWjITHJO9DBAK8CGeatklcBPWvhXoEdutdZ0v7EC9SZSkUq3bBrSeXKM3nw"
 
 # ---------------------------------------------------------------------------#
 # Test class
@@ -257,7 +253,7 @@ class AgencyTestCase(unittest.TestCase):
     # RBAC tests for the Casting Assistant
     # ------------------------------------------------------------------------#
 
-    # SHOULD access get:actors endpoint
+    # casting assistant SHOULD access get:actors endpoint
     def test_i_RBAC_get_actors(self):
         res = self.client().get(
             '/actors',
@@ -268,7 +264,7 @@ class AgencyTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue("actors" in data)
 
-    # should NOT access patch:actors endpoint
+    # casting assistant SHOULD NOT access patch:actors endpoint
     def test_j_RBAC_cannot_update_actor(self):
         res = self.client().patch(
             '/actors/1',
@@ -285,7 +281,7 @@ class AgencyTestCase(unittest.TestCase):
     # RBAC tests for the Casting Director
     # ------------------------------------------------------------------------#
 
-    # SHOULD access post:actors endpoint
+    # casting director SHOULD access post:actors endpoint
     def test_k_RBAC_create_actor(self):
         res = self.client().post(
             '/actors',
@@ -300,7 +296,7 @@ class AgencyTestCase(unittest.TestCase):
         self.assertTrue(data['actors'])
         self.assertTrue(check_actor)
 
-    # should NOT access post:movies endpoint
+    # casting director SHOULD NOT access post:movies endpoint
     def test_l_RBAC_cannot_create_movie(self):
         res = self.client().post(
             '/movies',
@@ -316,4 +312,5 @@ class AgencyTestCase(unittest.TestCase):
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
+    db_drop_and_create_all()
     unittest.main()

@@ -281,7 +281,9 @@ curl --location --request PATCH 'BASE_URL/movies/2' \
 ```
 
 ## Testing
-To run the tests:
+To run the test suite locally, first set the `DATABASE_URL` environment variable in `setup.sh` to a local postgres database. The run the following:
+
 ```
+source setup.sh
 python test_app.py
 ```
