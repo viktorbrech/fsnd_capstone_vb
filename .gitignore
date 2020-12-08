@@ -130,3 +130,5 @@ dmypy.json
 
 # Viktor's own additions
 architecture_notes.txt
+.vscode
+.vscode/
